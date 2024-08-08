@@ -36,9 +36,9 @@ sudo chmod -R 777 /var/www/moodledata
 sudo -u www-data cp /var/www/html/moodle/config-dist.php /var/www/html/moodle/config.php
 
 # Configure Moodle
-sudo sed -i "s/example.com/${1}/g" /var/www/html/moodle/config.php
-sudo sed -i "s/username/${2}/g" /var/www/html/moodle/config.php
-sudo sed -i "s/password/${3}/g" /var/www/html/moodle/config.php
+sudo sed -i "s/example.com/$1/g" /var/www/html/moodle/config.php
+sudo sed -i "s/username/$2/g" /var/www/html/moodle/config.php
+sudo sed -i "s/password/$3/g" /var/www/html/moodle/config.php
 sudo sed -i "s/moodle/moodledb/g" /var/www/html/moodle/config.php
 sudo sed -i "s#dirname(__FILE__) . '/moodledata'#'/var/www/moodledata'#g" /var/www/html/moodle/config.php
 
