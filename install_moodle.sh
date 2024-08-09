@@ -18,10 +18,6 @@ sudo apt update && sudo apt upgrade -y
 log_message "Installing Apache, PHP, and required extensions"
 sudo apt install -y apache2 php php-cli php-mysql php-xml php-curl php-gd php-mbstring php-xmlrpc php-soap php-intl php-zip
 
-# Install MySQL client
-log_message "Installing MySQL client"
-sudo apt install -y mysql-client
-
 # Enable Apache modules
 log_message "Enabling Apache rewrite module"
 sudo a2enmod rewrite
@@ -83,30 +79,8 @@ sudo sed -i "s/'password'/'${DB_PASS}'/g" /var/www/html/moodle/config.php
 sudo sed -i "s/'moodle'/'moodledb'/g" /var/www/html/moodle/config.php
 sudo sed -i "s#dirname(__FILE__) . '/moodledata'#'/var/moodledata'#g" /var/www/html/moodle/config.php
 
-# Explicitly set dataroot in config.php
-sudo sed -i "/^\$CFG->dbpass/a \$CFG->dataroot  = '/var/moodledata';" /var/www/html/moodle/config.php
-
 # Secure config.php
 log_message "Securing config.php"
 sudo chmod 400 /var/www/html/moodle/config.php
 
-# Ensure Apache has necessary permissions
-log_message "Ensuring Apache has necessary permissions"
-sudo usermod -a -G www-data www-data
-
-# Restart Apache again to apply all changes
-log_message "Restarting Apache to apply all changes"
-sudo systemctl restart apache2
-
 log_message "Moodle installation completed. Please finish the setup by visiting http://${SITE_URL}/moodle"
-
-# Display important information
-echo "Installation completed. Important next steps:"
-echo "1. Visit http://${SITE_URL}/moodle to complete the Moodle setup."
-echo "2. Use the following database settings during setup:"
-echo "   - Database type: mysqli"
-echo "   - Database host: ${DB_HOST}"
-echo "   - Database name: moodledb"
-echo "   - Database user: ${DB_USER}"
-echo "   - Database password: ${DB_PASS}"
-echo "3. The moodledata directory is located at: /var/moodledata"
