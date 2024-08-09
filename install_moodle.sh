@@ -61,9 +61,9 @@ sudo chmod -R 755 /var/www/html/moodle
 
 # Create moodledata directory
 log_message "Creating moodledata directory"
-sudo mkdir -p /var/www/moodledata
-sudo chown -R www-data:www-data /var/www/moodledata
-sudo chmod -R 0777 /var/www/moodledata
+sudo mkdir -p /var/moodledata
+sudo chown -R www-data:www-data /var/moodledata
+sudo chmod -R 0777 /var/moodledata
 
 # Create Moodle config.php
 log_message "Creating Moodle config.php"
@@ -75,10 +75,13 @@ sudo sed -i "s/example.com/$1/g" /var/www/html/moodle/config.php
 sudo sed -i "s/username/$2/g" /var/www/html/moodle/config.php
 sudo sed -i "s/password/$3/g" /var/www/html/moodle/config.php
 sudo sed -i "s/moodle/moodledb/g" /var/www/html/moodle/config.php
-sudo sed -i "s#dirname(__FILE__) . '/moodledata'#'/var/www/moodledata'#g" /var/www/html/moodle/config.php
+sudo sed -i "s#dirname(__FILE__) . '/moodledata'#'/var/moodledata'#g" /var/www/html/moodle/config.php
 
 # Explicitly set dataroot in config.php
-echo "\$CFG->dataroot = '/var/www/moodledata';" | sudo tee -a /var/www/html/moodle/config.php
+sudo sed -i "/^\$CFG->dbpass/a \$CFG->dataroot  = '/var/moodledata';" /var/www/html/moodle/config.php
+
+# Set the correct wwwroot
+sudo sed -i "s#http://example.com/moodle#http://$1#" /var/www/html/moodle/config.php
 
 # Secure config.php
 log_message "Securing config.php"
@@ -92,4 +95,15 @@ sudo usermod -a -G www-data www-data
 log_message "Restarting Apache to apply all changes"
 sudo systemctl restart apache2
 
-log_message "Moodle installation completed. Please finish the setup by visiting http://your-vm-ip/moodle"
+log_message "Moodle installation completed. Please finish the setup by visiting http://$1/moodle"
+
+# Display important information
+echo "Installation completed. Important next steps:"
+echo "1. Visit http://$1/moodle to complete the Moodle setup."
+echo "2. Use the following database settings during setup:"
+echo "   - Database type: mysqli"
+echo "   - Database host: $1"
+echo "   - Database name: moodledb"
+echo "   - Database user: $2"
+echo "   - Database password: $3"
+echo "3. The moodledata directory is located at: /var/moodledata"
