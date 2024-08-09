@@ -71,17 +71,20 @@ sudo -u www-data cp /var/www/html/moodle/config-dist.php /var/www/html/moodle/co
 
 # Configure Moodle
 log_message "Configuring Moodle"
-sudo sed -i "s/example.com/$1/g" /var/www/html/moodle/config.php
-sudo sed -i "s/username/$2/g" /var/www/html/moodle/config.php
-sudo sed -i "s/password/$3/g" /var/www/html/moodle/config.php
-sudo sed -i "s/moodle/moodledb/g" /var/www/html/moodle/config.php
+SITE_URL="$1"
+DB_HOST="$2"
+DB_USER="$3"
+DB_PASS="$4"
+
+sudo sed -i "s#http://example.com/moodle#http://${SITE_URL}/moodle#" /var/www/html/moodle/config.php
+sudo sed -i "s/'localhost'/'${DB_HOST}'/g" /var/www/html/moodle/config.php
+sudo sed -i "s/'username'/'${DB_USER}'/g" /var/www/html/moodle/config.php
+sudo sed -i "s/'password'/'${DB_PASS}'/g" /var/www/html/moodle/config.php
+sudo sed -i "s/'moodle'/'moodledb'/g" /var/www/html/moodle/config.php
 sudo sed -i "s#dirname(__FILE__) . '/moodledata'#'/var/moodledata'#g" /var/www/html/moodle/config.php
 
 # Explicitly set dataroot in config.php
 sudo sed -i "/^\$CFG->dbpass/a \$CFG->dataroot  = '/var/moodledata';" /var/www/html/moodle/config.php
-
-# Set the correct wwwroot
-sudo sed -i "s#http://example.com/moodle#http://$1#" /var/www/html/moodle/config.php
 
 # Secure config.php
 log_message "Securing config.php"
@@ -95,15 +98,15 @@ sudo usermod -a -G www-data www-data
 log_message "Restarting Apache to apply all changes"
 sudo systemctl restart apache2
 
-log_message "Moodle installation completed. Please finish the setup by visiting http://$1/moodle"
+log_message "Moodle installation completed. Please finish the setup by visiting http://${SITE_URL}/moodle"
 
 # Display important information
 echo "Installation completed. Important next steps:"
-echo "1. Visit http://$1/moodle to complete the Moodle setup."
+echo "1. Visit http://${SITE_URL}/moodle to complete the Moodle setup."
 echo "2. Use the following database settings during setup:"
 echo "   - Database type: mysqli"
-echo "   - Database host: $1"
+echo "   - Database host: ${DB_HOST}"
 echo "   - Database name: moodledb"
-echo "   - Database user: $2"
-echo "   - Database password: $3"
+echo "   - Database user: ${DB_USER}"
+echo "   - Database password: ${DB_PASS}"
 echo "3. The moodledata directory is located at: /var/moodledata"
